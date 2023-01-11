@@ -11,10 +11,15 @@
     <script>
         var sports;
         try {
-            console.log("try");
-            sports = swim;
+            // console.log("try");
+            // sports = swim;
+            if(!sports){
+                //throw "sports 변수에 값이 없다!!";
+                throw {message : "에러임", reason : "변수없"};
+            }
         } catch (error) {
-            console.log("catch");
+            //console.log("catch",error);
+            console.log("catch",error.message,error.reason);
         }
         finally{
             console.log("finally");
