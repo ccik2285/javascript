@@ -1,0 +1,61 @@
+
+<!doctype html>
+<head>
+<title>jQuery Selector</title>
+<style>
+	body{background-color:#ebebeb;font-family:Dotum}
+	.content { background : #FFF; padding:10px; margin:10px; }
+	#content { background : #FFF; padding:10px; margin:10px; }
+	.box{width:40px; height:40px; float:left; padding:10px; margin:10px;background-color:#e0e0e0;}
+	.box2{width:100px; height:40px; float:left; padding:10px; margin:10px;background-color:#EEEEEE}
+    .class span,.class div  { 
+            width:100px; height:40px; float:left; padding:10px; margin:10px; 
+            background-color:#EEEEEE; 
+        }
+
+
+</style>   
+<script src="http://code.jquery.com/jquery-latest.js"></script>
+<script type="text/javascript">
+	$(document).ready(function () {
+//		$("ul[id='siteUrl1'] > li").css("border", "1px solid #ff0000");
+		$("ul[id='siteUrl'] > li").css("border", "1px solid #ff0000");  //ul태그 id를 찾아 그 밑의 자식 li태그의 css 건듦
+	});   
+
+</script>
+</head>
+<body style="padding:10px;">
+<h2>jQuery 시작 Selector</h2>
+    <p>jQuery에 대한 자세한 내용을 보려면 jquery.com 을 방문하세요.</p>  
+   <div class="content">    
+       <ul id="siteUrl1">
+            <li>Sqler : http://www.sqler.com</li>
+            <li>jQuery : http://jquery.com</li>
+            <li>
+                <ul>
+                    <li>Blog : http://www.hows.kr</li>
+                    <li>Community : http://www.hoons.kr</li>
+                </ul>
+            </li>
+            <li>Items</li>
+            <li>Items</li>
+            <li>Items</li>
+        </ul>
+        <ul id="siteUrl">
+            <li>Sqler : http://www.sqler.com</li>
+            <li>jQuery : http://jquery.com</li>
+            <li>
+                <ul>
+                    <li>Blog : http://www.hows.kr</li>
+                    <li>Community : http://www.hoons.kr</li>
+                </ul>
+            </li>
+            <li>Items</li>
+            <li>Items</li>
+            <li>Items</li>
+        </ul>
+
+  
+    </div>
+</body>
+</html>

@@ -1,0 +1,43 @@
+
+<!doctype html>
+<head>
+<title>jQuery Selector</title>
+<style>
+	body{background-color:#ebebeb;font-family:Dotum}
+	.content { background : #FFF; padding:10px; margin:10px; }
+	#content { background : #FFF; padding:10px; margin:10px; }
+	.box{width:40px; height:40px; float:left; padding:10px; margin:10px;background-color:#e0e0e0;}
+	.box2{width:100px; height:40px; float:left; padding:10px; margin:10px;background-color:#EEEEEE}
+    .class span,.class div  { 
+            width:100px; height:40px; float:left; padding:10px; margin:10px; 
+            background-color:#EEEEEE; 
+        }
+
+
+</style>   
+<script src="http://code.jquery.com/jquery-latest.js"></script>
+<script type="text/javascript">
+	$(document).ready(function () {
+		$("label + input").css("border", "1px solid #ff0000");  //다음 노드  label태그의 다음으로 나오는 input태그를 찾아주세용
+	});   
+
+</script>
+</head>
+<body style="padding:10px;">
+<h2>jQuery 시작 Selector</h2>
+    <p>jQuery에 대한 자세한 내용을 보려면 jquery.com 을 방문하세요.</p>  
+   <div class="content">    
+        <form>
+            <label>Name:</label>
+            <input name="name" />
+        
+            <fieldset>
+                <label>Newsletter:</label>
+                <input name="newsletter" />
+            </fieldset>
+
+        </form>
+        <input name="none" />
+    </div>
+</body>
+</html>
