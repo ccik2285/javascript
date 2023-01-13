@@ -53,10 +53,235 @@
 	**/
 
 
+ 
+	var testData = [
+        {
+          goodsImg: "../images/goods/img_50.jpg",
+          goodsNo: "1000000000",
+          goodsNm:
+            "[BeanPole] 빈폴 BE4AA11235 5종 택 1 [정상가175,150원(정품)이효리가방 (남/여 공용)]",
+          qty: 1,
+          price: 175150,
+          deliverAmt: 3000,
+		  soldOut : "Y",
+          item: [
+            {
+              itemNo: "2000000000",
+              itemNm: "색상:검정",
+              itemQty: "1",
+            },
+          ],
+        },
+        {
+          goodsImg: "../images/goods/img_50.jpg",
+          goodsNo: "1000000001",
+          goodsNm: "[타임워커/트레보스]스크래치 특가상품 모음전",
+          qty: 3,
+          price: 860000,
+          deliverAmt: 0,
+		  soldOut : "N",
+          item: [
+            {
+              itemNo: "2000000000",
+              itemNm: "색상:레드브라운",
+              itemQty: "1",
+            },
+          ],
+        },
+        {
+          goodsImg: "../images/goods/img_50.jpg",
+          goodsNo: "1000000002",
+          goodsNm:
+            "[cK] 켈빈클라인 CK1145SK 명품 선글라스 5종 택 1 [정상가358,000원(정품)이효리선글라스 (남/여 공용)]",
+          qty: 1,
+          price: 358000,
+          deliverAmt: 3000,
+		  soldOut : "N",
+          item: [
+            {
+              itemNo: "2000000000",
+              itemNm: "색상:CK1145SK 109",
+              itemQty: "1",
+            },
+          ],
+        },
+      ];
+
+		const isEmpty = function(list){
+			return (list == null || list != null && list.length == 0);
+		}
+
+		var searchCartList = function(cartList) {
+			
+			const cartListTbody = $("#cartList");
+
+			if(isEmpty(cartList)){
+				
+				cartListTbody.html(getNonCartItem()); //해당 html태그에 붙여라 
+
+				return ;
+			}
+				// .html -> 기존태그를 모두 삭제한 후 붙임
+				// append -> 기존태그를 유지하고 붙임
+			const cartLength = cartList.length; // 길이는 미리 선언해서 length 함수 호출 안하게 하기
+
+			for(let i=0; i < cartLength; i++){
+				
+				////// 장바구니 목록 뿌리기
+				
+				const cart = cartList[i];
+				cartListTbody.append(getCartItem(cart));
+				
+				//////
+				
+				//console.log(cart);
+
+			}
 
 
 
+		};
+
+		const setPlus = function(e) {
+
+				//부모의 노드를 찾아 또 그자식노드
+				const $parent = $(e).parent(); // p class = qty;
+				const $qtyElement = $parent.find("input[name=qty]"); //제이쿼리 객체는 $를 붙혀서 구분함
+
+				let qty = Number($qtyElement.val());
+
+				if(qty >= 30){
+					alert("최대 수량입니다.");
+					return;
+				}
+
+				qty++;
+				$qtyElement.val(qty);
+		}
+
+		const setMinus = function(e) {
+				
+				//부모의 노드를 찾아 또 그자식노드
+				const $parent = $(e).parent(); // p class = qty;
+				const $qtyElement = $parent.find("input[name=qty]"); //제이쿼리 객체는 $를 붙혀서 구분함
+
+				let qty = Number($qtyElement.val());
+
+				if(qty <= 0){
+					alert("최소 수량입니다.")
+					return;
+				}
+
+				qty--;
+				$qtyElement.val(qty);
+
+		}
+
+		$(document).ready(function(){
+			searchCartList(testData);
+		
+			$("#cartList .plus").click(function(e){     ///부모를 먼저 찾고 자식의 클래스를 실행시킴!				
+				setPlus(e.currentTarget);
+			});
+			
+			
+			$("#cartList .minus").click(function(e){		
+				setMinus(e.currentTarget);
+			});
+
+			$("#cartList input[name=qty]").keyup(function(e){
+				
+				const $qtyElement = $(e.currentTarget);
+				let qty = Number($qtyElement.val());
+				
+	            if(qty > 30){
+					qty = 30;
+					alert("최대 수량입니다.");
+				}
+				else if(qty < 0){
+					qty = 0;
+					alert("최소 수량입니다.");
+				}
+
+				$qtyElement.val(qty);
+
+			});
+
+
+		});
 //]]>
+const getNonCartItem = function(){
+	const html = `<tr>
+	<td class="g_pic" colspan = "7">
+		장바구니 항목이 없습니다.
+	</td>
+	</tr>
+
+	`;
+
+	return html;
+}
+const caculatePriceAtQty = function(cartItem) {
+
+	return cartItem.qty * cartItem.price;
+}
+
+
+const getCartItem = function(cartItem) {
+	//<img src="../images/goods/img_soldout.png" width="50" height="50" class="out"  alt="품절"/>
+	const soldOutHTML = 'Y' === cartItem.soldOut ? '<img src="../images/goods/img_soldout.png" width="50" height="50" class="out"  alt="품절"/>' : ''; 
+
+const html = `
+
+<tr>
+	<td class="g_pic">
+		<input type="checkbox" name="choice_prd" class="checkbox" title="상품 선택" />
+		<a href="#">
+			<img src="${cartItem.goodsImg}" width="50" height="50"  alt="상품"  />
+			${soldOutHTML}
+		</a>
+	</td>
+	<td class="g_info">
+		<p class="pname">
+			<a href="#">${cartItem.goodsNm}</a>
+		</p>
+		<ul class="opt">
+			<li>[선택] 색상:검정 (1개) <a href="#" ><img src="../images/order/btn_chg_option.gif" width="71" height="18" alt="선택사항수정" /></a></li>
+		</ul>
+		<p class="pprc">${toCurrency(cartItem.price)}원</p>
+	</td>
+	<td class="g_info">
+		<p class="icons">
+			<span class="sale"><img src="../images/common/ico_sale2.gif" width="26" height="11" alt="할인" /></span>
+		</p>
+	</td>
+	<td class="g_qty">
+		<p class="qty">
+			<input type="text" name="qty" id="cnt" value="${cartItem.qty}" class="input" title="상품수량입력" />
+			<input type="hidden" name="price" value="${cartItem.price}" class="input" title="상품 가격" />
+			<input type="hidden" name="deliver_amt" value="${cartItem.deliverAmt}" class="input" title="배송비" />
+			<input type="hidden" name="goods_code" value="${cartItem.goodsNo}" class="input" title="상품코드" />
+			<input type="hidden" name="item_no" value="${cartItem.item.itemNo}" class="input" title="단품 코드" />
+			<a href="javascript:;" onkeypress="this.onclick;" class="plus"><img src="../images/goods/btn_cnt_up.gif" width="15" height="9" alt="수량증가" /></a>
+			<a href="javascript:;" onkeypress="this.onclick;" class="minus"><img src="../images/goods/btn_cnt_down.gif" width="15" height="9" alt="수량감소" /></a>
+			<a href="javascript:;" class="modi"><img src="../images/order/btn_cnt_mod.gif" width="46" height="18" alt="변경" /></a>
+		</p>
+	</td>
+	<td class="g_prc"><span>${toCurrency(caculatePriceAtQty(cartItem))}</span></td>
+	<td class="g_dvr">${toCurrency(cartItem.deliverAmt)}원</td>
+	<td class="g_ord">
+		<a href="javascript:;" ><img src="../images/order/btn_order_s.gif" width="51" height="20" alt="주문하기" /></a>
+		<a href="javascript:;" class="del">삭제하기</a>
+	</td>
+</tr>
+
+`
+
+	return html;
+}
+
+
+
 </script>
 </head>
 <body>
@@ -95,9 +320,9 @@
 			</div>
 		</div>
 
-		<div class="head_menu">
-			<h1><a href="#"><img src="../images/common/h1_logo.gif" width="185" height="103" alt="welstorymall" /></a></h1>
+		<div class="head_menu">idth="185" height="103" alt="welstorymall" /></a></h1>
 			<div class="menu_plan">
+			<h1><a href="#"><img src="../images/common/h1_logo.gif" w
 				<ul>
 					<li><a href="#"><img src="../images/common/menu_plan_01.gif" width="61" height="25" alt="명품주방" /></a></li>
 					<li><a href="#"><img src="../images/common/menu_plan_02.gif" width="61" height="25" alt="원어위크" /></a></li>
@@ -219,137 +444,8 @@
 							<th scope="col" class="end">주문</th>
 						</tr>
 					</thead>
-					<tbody>
-						<tr>
-							<td class="g_pic">
-								<input type="checkbox" name="choice_prd" class="checkbox" title="상품 선택" />
-								<a href="#">
-									<img src="../images/goods/img_50.jpg" width="50" height="50"  alt="상품"  />
-									<img src="../images/goods/img_soldout.png" width="50" height="50" class="out"  alt="품절"/>
-								</a>
-							</td>
-							<td class="g_info">
-								<p class="pname">
-									<a href="#">[BeanPole] 빈폴 BE4AA11235 5종 택 1 [정상가175,150원(정품)이효리가방 (남/여 공용)]</a>
-								</p>
-								<ul class="opt">
-									<li>[선택] 색상:검정 (1개) <a href="#" ><img src="../images/order/btn_chg_option.gif" width="71" height="18" alt="선택사항수정" /></a></li>
-								</ul>
-								<p class="pprc">175,150원</p>
-							</td>
-							<td class="g_info">
-								<p class="icons">
-									<span class="sale"><img src="../images/common/ico_sale2.gif" width="26" height="11" alt="할인" /></span>
-								</p>
-							</td>
-							<td class="g_qty">
-								<p class="qty">
-									<input type="text" name="qty" id="cnt" value="1" class="input" title="상품수량입력" />
-									<input type="hidden" name="amt" value="175150" class="input" title="상품 가격" />
-									<input type="hidden" name="deliver_amt" value="3000" class="input" title="배송비" />
-									<input type="hidden" name="goods_code" value="ABCDEFG1401201" class="input" title="상품코드" />
-									<input type="hidden" name="item_no" value="ABCDEFG1401201_ITEM_1" class="input" title="단품 코드" />
-									<a href="javascript:;" onkeypress="this.onclick;" class="plus"><img src="../images/goods/btn_cnt_up.gif" width="15" height="9" alt="수량증가" /></a>
-									<a href="javascript:;" onkeypress="this.onclick;" class="minus"><img src="../images/goods/btn_cnt_down.gif" width="15" height="9" alt="수량감소" /></a>
-									<a href="javascript:;" class="modi"><img src="../images/order/btn_cnt_mod.gif" width="46" height="18" alt="변경" /></a>
-								</p>
-							</td>
-							<td class="g_prc"><span>175,150원</span></td>
-							<td class="g_dvr">3,000원</td>
-							<td class="g_ord">
-								<a href="javascript:;" ><img src="../images/order/btn_order_s.gif" width="51" height="20" alt="주문하기" /></a>
-								<a href="javascript:;" class="del">삭제하기</a>
-							</td>
-						</tr>
-
-						<tr>
-							<td class="g_pic">
-								<input type="checkbox"  name="choice_prd" class="checkbox" title="상품 선택" />
-								<a href="#">
-									<img src="../images/goods/img_50.jpg" width="50" height="50"  alt="상품"  />
-									<img src="../images/goods/img_soldout.png" width="50" height="50" class="out"  alt="품절"/>
-								</a>
-							</td>
-							<td class="g_info">
-								<p class="pname">
-									<a href="#">[타임워커/트레보스]스크래치 특가상품 모음전	 </a>
-								</p>
-								<ul class="opt">
-									<li>[선택] 색상:레드 브라운 (1개) <a href="#" onclick="lyrPreView('layer1');return false;" onkeypress="this.onclick;"><img src="../images/order/btn_chg_option.gif" width="71" height="18" alt="선택사항수정" /></a></li>
-								</ul>
-								<p class="pprc">86,000원</p>
-							</td>
-							<td class="g_info">
-								<p class="icons">
-									<span class="sale"><img src="../images/common/ico_sale2.gif" width="26" height="11" alt="할인" /></span>
-								</p>
-							</td>
-							<td class="g_qty">
-								<p class="qty">
-									<input type="text" name="qty" id="cnt2" value="1" class="input" title="상품수량입력" />
-									<input type="hidden" name="amt" value="86000" class="input" title="상품 가격" />
-									<input type="hidden" name="deliver_amt" value="0" class="input" title="배송비" />
-									<input type="hidden" name="goods_code" value="ABCDEFG1401202" class="input" title="상품코드" />
-									<input type="hidden" name="item_no" value="ABCDEFG1401201_ITEM_2" class="input" title="단품 코드" />
-									<a href="javascript:;" onkeypress="this.onclick;" class="plus"><img src="../images/goods/btn_cnt_up.gif" width="15" height="9" alt="수량증가" /></a>
-									<a href="javascript:;" onkeypress="this.onclick;" class="minus"><img src="../images/goods/btn_cnt_down.gif" width="15" height="9" alt="수량감소" /></a>
-									<a href="javascript:;" class="modi"><img src="../images/order/btn_cnt_mod.gif" width="46" height="18" alt="변경" /></a>
-								</p>
-							</td>
-							<td class="g_prc"><span>86,000원</span></td>
-							<td class="g_dvr">무료</td>
-							<td class="g_ord">
-								<a href="#"><img src="../images/order/btn_order_s.gif" width="51" height="20" alt="주문하기" /></a>
-								<a href="javascript:;" onclick="removeProduct(this.parentNode)" class="del">삭제하기</a>
-							</td>
-						</tr>
-
-						<tr>
-							<td class="g_pic">
-								<input type="checkbox"  name="choice_prd" class="checkbox" title="상품 선택"/>
-								<a href="#"><img src="../images/goods/img_50.jpg" width="50" height="50"  alt="상품"  /></a>
-							</td>
-							<td class="g_info">
-								<p class="pname">
-									<a href="#">[cK] 켈빈클라인 CK1145SK 명품 선글라스 5종 택 1 [정상가358,000원(정품)이효리선글라스 (남/여 공용)]</a>
-								</p>
-								<ul class="opt">
-									<li>[선택] 색상:CK1145SK 109(1개) <a href="#" onclick="lyrPreView('layer2');return false;" onkeypress="this.onclick;"><img src="../images/order/btn_chg_option.gif" width="71" height="18" alt="선택사항수정" /></a></li>
-								</ul>
-								<p class="pprc">358,000원</p>
-							</td>
-							<td class="g_info">
-								<p class="icons">
-									<span class="sale"><img src="../images/common/ico_sale2.gif" width="26" height="11" alt="할인" /></span>
-								</p>
-							</td>
-							<td class="g_qty">
-								<p class="qty">
-									<input type="text" name="qty" id="cnt3" value="1" class="input" title="상품수량입력" />
-									<input type="hidden" name="amt" value="358000" class="input" title="상품 가격" />
-									<input type="hidden" name="deliver_amt" value="3000" class="input" title="배송비" />
-									<input type="hidden" name="goods_code" value="ABCDEFG1401203" class="input" title="상품코드" />
-									<input type="hidden" name="item_no" value="ABCDEFG1401201_ITEM_3" class="input" title="단품 코드" />
-									<a href="javascript:;" onkeypress="this.onclick;" class="plus"><img src="../images/goods/btn_cnt_up.gif" width="15" height="9" alt="수량증가" /></a>
-									<a href="javascript:;" onkeypress="this.onclick;" class="minus"><img src="../images/goods/btn_cnt_down.gif" width="15" height="9" alt="수량감소" /></a>
-									<a href="javascript:;" class="modi"><img src="../images/order/btn_cnt_mod.gif" width="46" height="18" alt="변경" /></a>
-								</p>
-							</td>
-							<td class="g_prc"><span>358,000원</span></td>
-							<td class="g_dvr">3,000원</td>
-							<td class="g_ord">
-								<a href="#"><img src="../images/order/btn_order_s.gif" width="51" height="20" alt="주문하기" /></a>
-								<a href="javascript:;" class="del">삭제하기</a>
-							</td>
-						</tr>
-						<!-- TOTAL -->
-						<tr>
-							<td colspan="7" class="c_tot">
-								<span class="sum"><em>주문금액 :</em><strong id="ord_amt">619,150</strong>원</span> +
-								<span class="sum"><em>배송비합계 :</em><strong id="deliver_total_amt">6,000</strong>원</span> =
-								<span class="tot"><em>총 예상 결제금액</em><strong id="total_amt">679,150</strong>원</span>
-							</td>
-						</tr>
+					<tbody id="cartList">
+						<!-- TOTAL -->					
 						<!-- //TOTAL -->
 					</tbody>
 				</table>
