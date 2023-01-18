@@ -282,7 +282,6 @@
 
 			});
 			
-			
 			$("#cartList .minus").click(function(e){		
 				const sold = $(e.currentTarget).parent().find("a.minus").attr('id');
 				if(sold == "sold") return ;
@@ -306,8 +305,10 @@
 				$qtyElement.val(qty);
 
 			});
-
-
+			$('.del').click(function(){
+				alert("hi");
+			});
+			
 		});
 //]]>
 const getNonCartItem = function(){
@@ -527,10 +528,10 @@ const html = `
 						<col style="width:80px" />
 						<col style="width:89px" />
 					</colgroup>
-					<thead>
+					<thead>    <!-- onclick="checkAll('sel_all_1')" -->
 						<tr>
 							<th scope="col" class="chk">
-								<input type="checkbox" class="checkbox" name="sel_all" id="sel_all_1" onclick="checkAll('sel_all_1')" />
+								<input type="checkbox" class="checkbox" name="sel_all" id="sel_all_1"/>
 								<label for="cart_all">전체선택</label>
 							</th>
 							<th scope="col">상품명/선택사항</th>
@@ -563,7 +564,7 @@ const html = `
 					<input type="checkbox" name="sel_all" class="checkbox" id="sel_all_2" />
 					<label for="sel_all">전체선택</label>
 					<div class="btns">
-						<a href="javascript:;" ><img src="../images/order/btn_ord_del.gif" width="86"  height="32" alt="선택상품을 삭제" /></a>
+						<a href="javascript:;" class="del"><img src="../images/order/btn_ord_del.gif" width="86"  height="32" alt="선택상품을 삭제" /></a>
 						<a href="#"><img src="../images/order/btn_ord_wish.gif" width="103" height="32" alt="위시리스트 담기" /></a>
 						<a href="#"><img src="../images/order/btn_ord.gif" width="103" height="32" alt="주문하기" /></a>
 						<a href="#"><img src="../images/order/btn_ord_all.gif" width="103" height="32" alt="전체 주문하기" /></a>
