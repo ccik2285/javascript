@@ -126,17 +126,9 @@
 				// append -> 기존태그를 유지하고 붙임
 			const cartLength = cartList.length; // 길이는 미리 선언해서 length 함수 호출 안하게 하기
 
-			for(let i=0; i < cartLength; i++){
-				
-				////// 장바구니 목록 뿌리기
-				
+			for(let i=0; i < cartLength; i++){					
 				const cart = cartList[i];
 				cartListTbody.append(getCartItem(cart));
-				
-				//////
-				
-				//console.log(cart);
-
 			}
 
 
@@ -150,10 +142,15 @@
 			let tamt = 0;
 		
 			for(let i=0; i < cart.length; i++){
+				if(cart[i].soldOut=="Y") continue;
 				ord_amt += cart[i].qty * cart[i].price;
 				if(cart[i].qty) dta += cart[i].deliverAmt;
 				tamt = ord_amt + dta;
 			}
+			$("#ord_amt").val(ord_amt);
+			$("#total_amt").val(tamt);
+			$("#deliver_total_amt").val(dta);
+
 			$("#ord_amt").text(toCurrency(ord_amt));
 			$("#deliver_total_amt").text(toCurrency(dta));
 			$("#total_amt").text(toCurrency(tamt));
@@ -199,57 +196,96 @@
 
             const $parent = $(e).parent(); // p class = qty;
 			const $qtyElement = $parent.find("input[name=qty]");
-            const $price = $parent.find("input[name=price]");
+            const $price = $parent.find("input[name=price]"); 
+			const $dprice = $parent.find("input[name=deliver_amt]");
 
-            console.log($currElement.text());
-            $($currElement).text(toCurrency($qtyElement.val() * $price.val()));  //테이블별 수정
-            
+			let prev = Number($currElement.text().replace(/,/g, ""));
+			$currElement.val($qtyElement.val() * $price.val());
+
+            $($currElement).text(toCurrency($currElement.val()));  //테이블별 수정
+
+		    console.log(Number($currElement.val()-prev));
+
+
+		    let ord_amt = Number($("#ord_amt").val()) + (Number($currElement.val()-prev));
+			let tamt = ord_amt + Number($("#deliver_total_amt").val());
+			
+			$("#ord_amt").val(ord_amt);
+			$("#ord_amt").text(toCurrency(ord_amt)); //하단 수정
+            $("#total_amt").val(tamt);
+			$("#total_amt").text(toCurrency(tamt));
 		}
 		const IsSoldOut = function(){ //품절됐는지 확인하는 함수 
 			$("#cartList tr").each(function(i){
 
-				const $child = $(this).find("td.g_qty");  
+				const $child = $(this).find("td.g_qty");
+				const $child2 = $(this).find("td.g_prc"); 
 				let IsSold = $child.find("input[name=IsSold]").val() == "Y" ? true : false;
-
         		if(IsSold == true){  //품절됐으면
+
 					const $qtyElement = $child.find("input[name=qty]");
 					const $inc = $child.find("a.plus");
 					const $dec = $child.find("a.minus");
 					const $modi = $child.find("a.modi");
-		
+					const $ordamt = $child2.find("span.current");
+
 					$qtyElement.val(0);
 					$qtyElement.attr('disabled',true);
-					$inc.attr('value','0');
-				   // $dec.removeAttr('onkeypress');
-					// $dec.removeAttr('class');
-					// $modi.removeAttr('onkeypress');
-					// $.removeAttr('class');
+					$inc.attr('id','sold');
+					$dec.attr('id','sold');
+					$modi.attr('id','sold');
+					$ordamt.text("품절");    
+					$ordamt.val(0);
 
 				}
 			});
 
 		}
+		const box = function() {
+			$("#sel_all_1").click(function() {
+				if($("#sel_all_1").is(":checked")) {$("input[name=choice_prd]").prop("checked", true); $("input[name=sel_all]").prop("checked", true);}
+				else {$("input[name=choice_prd]").prop("checked", false); $("input[name=sel_all]").prop("checked", false); }
+			});
+
+			$("#sel_all_2").click(function() {
+				if($("#sel_all_2").is(":checked")) {$("input[name=choice_prd]").prop("checked", true); $("input[name=sel_all]").prop("checked", true);}
+				else {$("input[name=choice_prd]").prop("checked", false); $("input[name=sel_all]").prop("checked", false);}
+			});
+
+			$("input[name=choice_prd]").click(function() {
+				var total = $("input[name=choice_prd]").length;
+				var checked = $("input[name=choice_prd]:checked").length;
+
+				if(total != checked) {$("#sel_all_1").prop("checked", false); $("#sel_all_2").prop("checked", false);}
+				else {$("#sel_all_1").prop("checked", true); $("#sel_all_2").prop("checked", true); } 
+			});			
+		}
+
 
 		$(document).ready(function(){
 			searchCartList(testData);
 			IsSoldOut();
-			fee(testData); //다시해야됨
+			fee(testData);
+			box();
 
-
-            $("#cartList .modi").click(function(e){     ///부모를 먼저 찾고 자식의 클래스를 실행시킴!			
+            $("#cartList .modi").click(function(e){     ///부모를 먼저 찾고 자식의 클래스를 실행시킴!		
+				const sold = $(e.currentTarget).parent().find("a.modi").attr('id');
+				if(sold == "sold") return ;	
 				modi(e.currentTarget);
 			});
 
 
 			$("#cartList .plus").click(function(e){     ///부모를 먼저 찾고 자식의 클래스를 실행시킴!	
-				const sold = $(e.currentTarget).find("a.plus").next();
-				console.log(sold);
+				const sold = $(e.currentTarget).parent().find("a.plus").attr('id');
+				if(sold == "sold") return ;
 				setPlus(e.currentTarget);
 
 			});
 			
 			
 			$("#cartList .minus").click(function(e){		
+				const sold = $(e.currentTarget).parent().find("a.minus").attr('id');
+				if(sold == "sold") return ;
 				setMinus(e.currentTarget);
 			});
 
@@ -324,9 +360,9 @@ const html = `
 			<input type="hidden" name="deliver_amt" value="${cartItem.deliverAmt}" class="input" title="배송비" />
 			<input type="hidden" name="goods_code" value="${cartItem.goodsNo}" class="input" title="상품코드" />
 			<input type="hidden" name="item_no" value="${cartItem.item.itemNo}" class="input" title="단품 코드" />
-			<a href="javascript:;" name="plus" onkeypress="this.onclick;" class="plus"><img src="../images/goods/btn_cnt_up.gif" width="15" height="9" alt="수량증가" /></a>
-			<a href="javascript:;" name="dec" onkeypress="this.onclick;" class="minus"><img src="../images/goods/btn_cnt_down.gif" width="15" height="9" alt="수량감소" /></a>
-			<a href="javascript:;" name="modi" onkeypress="this.onlick;" class="modi"><img src="../images/order/btn_cnt_mod.gif" width="46" height="18" alt="변경" /></a>
+			<a href="javascript:;" name="plus" value="1" onkeypress="this.onclick;" class="plus"><img src="../images/goods/btn_cnt_up.gif" width="15" height="9" alt="수량증가" /></a>
+			<a href="javascript:;" name="dec" value="1" onkeypress="this.onclick;" class="minus"><img src="../images/goods/btn_cnt_down.gif" width="15" height="9" alt="수량감소" /></a>
+			<a href="javascript:;" name="modi" value="1" onkeypress="this.onlick;" class="modi"><img src="../images/order/btn_cnt_mod.gif" width="46" height="18" alt="변경" /></a>
 		</p>
 	</td>
 	<td class="g_prc"><span class="current">${toCurrency(caculatePriceAtQty(cartItem))}</span></td>
