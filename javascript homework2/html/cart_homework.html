@@ -1,4 +1,5 @@
 
+
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="ko" xml:lang="ko">
 <head>
@@ -141,8 +142,8 @@
 
 
 		};
-
-		var fee = function(testData) {
+        
+		const fee = function(testData) {
 			let cart = testData;
 			let ord_amt = 0;
 			let dta = 0;
@@ -193,17 +194,58 @@
 
 		}
 		const modi = function(e) {
+            const $currparent = $(e).parent().parent().next();
+			const $currElement = $currparent.find("span.current");
 
-			
+            const $parent = $(e).parent(); // p class = qty;
+			const $qtyElement = $parent.find("input[name=qty]");
+            const $price = $parent.find("input[name=price]");
+
+            console.log($currElement.text());
+            $($currElement).text(toCurrency($qtyElement.val() * $price.val()));  //테이블별 수정
+            
+		}
+		const IsSoldOut = function(){ //품절됐는지 확인하는 함수 
+			$("#cartList tr").each(function(i){
+
+				const $child = $(this).find("td.g_qty");  
+				let IsSold = $child.find("input[name=IsSold]").val() == "Y" ? true : false;
+
+        		if(IsSold == true){  //품절됐으면
+					const $qtyElement = $child.find("input[name=qty]");
+					const $inc = $child.find("a.plus");
+					const $dec = $child.find("a.minus");
+					const $modi = $child.find("a.modi");
+		
+					$qtyElement.val(0);
+					$qtyElement.attr('disabled',true);
+					$inc.attr('value','0');
+				   // $dec.removeAttr('onkeypress');
+					// $dec.removeAttr('class');
+					// $modi.removeAttr('onkeypress');
+					// $.removeAttr('class');
+
+				}
+			});
 
 		}
+
 		$(document).ready(function(){
 			searchCartList(testData);
-			fee(testData);
-			
+			IsSoldOut();
+			fee(testData); //다시해야됨
 
-			$("#cartList .plus").click(function(e){     ///부모를 먼저 찾고 자식의 클래스를 실행시킴!				
-					setPlus(e.currentTarget);
+
+            $("#cartList .modi").click(function(e){     ///부모를 먼저 찾고 자식의 클래스를 실행시킴!			
+				modi(e.currentTarget);
+			});
+
+
+			$("#cartList .plus").click(function(e){     ///부모를 먼저 찾고 자식의 클래스를 실행시킴!	
+				const sold = $(e.currentTarget).find("a.plus").next();
+				console.log(sold);
+				setPlus(e.currentTarget);
+
 			});
 			
 			
@@ -238,7 +280,6 @@ const getNonCartItem = function(){
 		장바구니 항목이 없습니다.
 	</td>
 	</tr>
-
 	`;
 
 	return html;
@@ -252,9 +293,7 @@ const caculatePriceAtQty = function(cartItem) {
 const getCartItem = function(cartItem) {
 	//<img src="../images/goods/img_soldout.png" width="50" height="50" class="out"  alt="품절"/>
 	const soldOutHTML = 'Y' === cartItem.soldOut ? '<img src="../images/goods/img_soldout.png" width="50" height="50" class="out"  alt="품절"/>' : ''; 
-
 const html = `
-
 <tr>
 	<td class="g_pic">
 		<input type="checkbox" name="choice_prd" class="checkbox" title="상품 선택" />
@@ -281,22 +320,22 @@ const html = `
 		<p class="qty">
 			<input type="text" name="qty" id="cnt" value="${cartItem.qty}" class="input" title="상품수량입력" />
 			<input type="hidden" name="price" value="${cartItem.price}" class="input" title="상품 가격" />
+			<input type="hidden" name="IsSold" value="${cartItem.soldOut}" class="input" title="품절 여부" />
 			<input type="hidden" name="deliver_amt" value="${cartItem.deliverAmt}" class="input" title="배송비" />
 			<input type="hidden" name="goods_code" value="${cartItem.goodsNo}" class="input" title="상품코드" />
 			<input type="hidden" name="item_no" value="${cartItem.item.itemNo}" class="input" title="단품 코드" />
-			<a href="javascript:;" onkeypress="this.onclick;" class="plus"><img src="../images/goods/btn_cnt_up.gif" width="15" height="9" alt="수량증가" /></a>
-			<a href="javascript:;" onkeypress="this.onclick;" class="minus"><img src="../images/goods/btn_cnt_down.gif" width="15" height="9" alt="수량감소" /></a>
-			<a href="javascript:;" onkeypress= "this.onlick;" class="modi"><img src="../images/order/btn_cnt_mod.gif" width="46" height="18" alt="변경" /></a>
+			<a href="javascript:;" name="plus" onkeypress="this.onclick;" class="plus"><img src="../images/goods/btn_cnt_up.gif" width="15" height="9" alt="수량증가" /></a>
+			<a href="javascript:;" name="dec" onkeypress="this.onclick;" class="minus"><img src="../images/goods/btn_cnt_down.gif" width="15" height="9" alt="수량감소" /></a>
+			<a href="javascript:;" name="modi" onkeypress="this.onlick;" class="modi"><img src="../images/order/btn_cnt_mod.gif" width="46" height="18" alt="변경" /></a>
 		</p>
 	</td>
-	<td class="g_prc"><span>${toCurrency(caculatePriceAtQty(cartItem))}</span></td>
+	<td class="g_prc"><span class="current">${toCurrency(caculatePriceAtQty(cartItem))}</span></td>
 	<td class="g_dvr">${toCurrency(cartItem.deliverAmt)}원</td>
 	<td class="g_ord">
 		<a href="javascript:;" ><img src="../images/order/btn_order_s.gif" width="51" height="20" alt="주문하기" /></a>
 		<a href="javascript:;" class="del">삭제하기</a>
 	</td>
 </tr>
-
 `
 
 	return html;
