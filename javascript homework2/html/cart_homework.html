@@ -1,4 +1,3 @@
-
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="ko" xml:lang="ko">
 <head>
@@ -125,22 +124,44 @@
 				// append -> 기존태그를 유지하고 붙임
 			const cartLength = cartList.length; // 길이는 미리 선언해서 length 함수 호출 안하게 하기
 
-			for(let i=0; i < cartLength; i++){
-				
-				////// 장바구니 목록 뿌리기
-				
+			for(let i=0; i < cartLength; i++){					
 				const cart = cartList[i];
 				cartListTbody.append(getCartItem(cart));
-				
-				//////
-				
-				//console.log(cart);
-
 			}
 
 
 
 		};
+        
+		const fee = function() {
+			let cart = testData;
+			let ord_amt = 0;
+			let dta = 0;
+			let tamt = 0;
+			
+			$("#cartList tr").each(function(){
+				const $child = $(this).find("td.g_qty");
+				const $qtyElement = $child.find("input[name=qty]");
+				const $priceElement = $child.find("input[name=price]");
+				const $soldElement = $child.find("input[name=IsSold]");
+				const $damt = $child.find("input[name=deliver_amt]");
+
+				if($soldElement.val() == "N"){
+					ord_amt += Number($qtyElement.val()) * Number($priceElement.val()); 
+					if(Number($qtyElement.val()) != 0) dta += Number($damt.val());
+					tamt = ord_amt + dta;
+				}
+			});
+			   //값 갱신
+				$("#ord_amt").val(ord_amt);
+				$("#total_amt").val(tamt);
+				$("#deliver_total_amt").val(dta);
+
+				$("#ord_amt").text(toCurrency(ord_amt));
+				$("#deliver_total_amt").text(toCurrency(dta));
+				$("#total_amt").text(toCurrency(tamt));
+
+		}
 
 		const setPlus = function(e) {
 
@@ -177,16 +198,134 @@
 
 		}
 
+		const modi = function(e) {
+            const $currparent = $(e).parent().parent().next();
+			const $currElement = $currparent.find("span.current");
+
+            const $parent = $(e).parent(); // p class = qty;
+			const $qtyElement = $parent.find("input[name=qty]");
+            const $price = $parent.find("input[name=price]"); 
+			const $dprice = $parent.find("input[name=deliver_amt]");
+
+			$currElement.val($qtyElement.val() * $price.val());
+
+            $($currElement).text(toCurrency($currElement.val()));  //테이블별 수정
+
+			fee();
+		}
+
+		const IsSoldOut = function(){ //품절됐는지 확인하는 함수 
+			$("#cartList tr").each(function(i){
+
+				const $child = $(this).find("td.g_qty");
+				const $child2 = $(this).find("td.g_prc"); 
+				const $check = $(this).find("td.g_pic"); 
+				let IsSold = $child.find("input[name=IsSold]").val() == "Y" ? true : false;
+        		if(IsSold == true){  //품절됐으면
+
+					const $qtyElement = $child.find("input[name=qty]");
+					const $inc = $child.find("a.plus");
+					const $dec = $child.find("a.minus");
+					const $modi = $child.find("a.modi");
+					const $ordamt = $child2.find("span.current");
+					const $checkb = $check.find("input[name=choice_prd]");
+
+					$qtyElement.val(0);
+					$qtyElement.attr('disabled',true);
+					$inc.attr('id','sold');
+					$dec.attr('id','sold');
+					$modi.attr('id','sold');
+					$ordamt.text("품절");    
+					$ordamt.val(0);
+					$checkb.attr('disabled',true);
+					
+				}
+			});
+
+		}
+
+		const box = function() {
+			$("#sel_all_1").click(function() {
+				if($("#sel_all_1").is(":checked")) {$("input[name=choice_prd]:not(:disabled)").prop("checked", true); $("input[name=sel_all]").prop("checked", true);}
+				else {$("input[name=choice_prd]").prop("checked", false); $("input[name=sel_all]").prop("checked", false); }
+			});
+
+			$("#sel_all_2").click(function() {
+				if($("#sel_all_2").is(":checked")) {$("input[name=choice_prd]:not(:disabled)").prop("checked", true); $("input[name=sel_all]").prop("checked", true);}
+				else {$("input[name=choice_prd]").prop("checked", false); $("input[name=sel_all]").prop("checked", false);}
+			});
+
+			$("input[name=choice_prd]").click(function() {
+				var total = $("input[name=choice_prd]").length;
+				var checked = $("input[name=choice_prd]:checked").length;
+
+				if(total != checked) {$("#sel_all_1").prop("checked", false); $("#sel_all_2").prop("checked", false);}
+				else {$("#sel_all_1").prop("checked", true); $("#sel_all_2").prop("checked", true); } 
+			});			
+		}
+
+		const clickdel = function(){
+			$("#cartList tr").each(function(i){
+				const $child = $(this).find("td.g_pic");
+				const $checked = $($child.find("input[name=choice_prd]"));
+				if($checked.is(":checked") == true){
+					$(this).remove();
+					fee();
+				}
+				
+			});
+
+		}
+		const order = function() {
+			let TrueAmt = 0;
+			$("#cartList tr").each(function(i){
+				const $child = $(this).find("td.g_pic");
+				const $checked = $($child.find("input[name=choice_prd]"));
+
+				if($checked.is(":checked") == true){
+					const $parent = $(this).find("td.g_qty");
+					const $qtyElement = $parent.find("input[name=qty]");
+            		const $price = $parent.find("input[name=price]"); 
+					const $dprice = $parent.find("input[name=deliver_amt]");
+					TrueAmt += Number($price.val());
+					console.log("qty : " + $qtyElement.val() + " amt : "  + $price.val() + " deliveramt : "+ $dprice.val());
+				}
+			});
+			console.log("실제주문금액 : " + toCurrency(TrueAmt) + "원");
+		}
+
 		$(document).ready(function(){
 			searchCartList(testData);
-		
-			$("#cartList .plus").click(function(e){     ///부모를 먼저 찾고 자식의 클래스를 실행시킴!				
-				setPlus(e.currentTarget);
+			IsSoldOut();
+			fee();
+			box();
+
+            $("#cartList .modi").click(function(e){     ///부모를 먼저 찾고 자식의 클래스를 실행시킴!		
+				const sold = $(e.currentTarget).parent().find("a.modi").attr('id');
+				if(sold == "sold") return ;	
+				modi(e.currentTarget);
+			});
+			$(".order").click(function(e){     ///부모를 먼저 찾고 자식의 클래스를 실행시킴!		
+				order();
 			});
 			
+
+			$("#cartList .plus").click(function(e){     ///부모를 먼저 찾고 자식의 클래스를 실행시킴!	
+				const sold = $(e.currentTarget).parent().find("a.plus").attr('id');
+				if(sold == "sold") return ;
+				setPlus(e.currentTarget);
+
+			});
 			
 			$("#cartList .minus").click(function(e){		
+				const sold = $(e.currentTarget).parent().find("a.minus").attr('id');
+				if(sold == "sold") return ;
 				setMinus(e.currentTarget);
+			});
+
+			$("#cartList .del").click(function(e){		
+				$(this).parent().parent().remove();
+				fee();
 			});
 
 			$("#cartList input[name=qty]").keyup(function(e){
@@ -206,8 +345,10 @@
 				$qtyElement.val(qty);
 
 			});
-
-
+			$('.del').click(function(){
+				clickdel();
+			});
+			
 		});
 //]]>
 const getNonCartItem = function(){
@@ -216,7 +357,6 @@ const getNonCartItem = function(){
 		장바구니 항목이 없습니다.
 	</td>
 	</tr>
-
 	`;
 
 	return html;
@@ -230,9 +370,7 @@ const caculatePriceAtQty = function(cartItem) {
 const getCartItem = function(cartItem) {
 	//<img src="../images/goods/img_soldout.png" width="50" height="50" class="out"  alt="품절"/>
 	const soldOutHTML = 'Y' === cartItem.soldOut ? '<img src="../images/goods/img_soldout.png" width="50" height="50" class="out"  alt="품절"/>' : ''; 
-
 const html = `
-
 <tr>
 	<td class="g_pic">
 		<input type="checkbox" name="choice_prd" class="checkbox" title="상품 선택" />
@@ -259,22 +397,22 @@ const html = `
 		<p class="qty">
 			<input type="text" name="qty" id="cnt" value="${cartItem.qty}" class="input" title="상품수량입력" />
 			<input type="hidden" name="price" value="${cartItem.price}" class="input" title="상품 가격" />
+			<input type="hidden" name="IsSold" value="${cartItem.soldOut}" class="input" title="품절 여부" />
 			<input type="hidden" name="deliver_amt" value="${cartItem.deliverAmt}" class="input" title="배송비" />
 			<input type="hidden" name="goods_code" value="${cartItem.goodsNo}" class="input" title="상품코드" />
 			<input type="hidden" name="item_no" value="${cartItem.item.itemNo}" class="input" title="단품 코드" />
-			<a href="javascript:;" onkeypress="this.onclick;" class="plus"><img src="../images/goods/btn_cnt_up.gif" width="15" height="9" alt="수량증가" /></a>
-			<a href="javascript:;" onkeypress="this.onclick;" class="minus"><img src="../images/goods/btn_cnt_down.gif" width="15" height="9" alt="수량감소" /></a>
-			<a href="javascript:;" class="modi"><img src="../images/order/btn_cnt_mod.gif" width="46" height="18" alt="변경" /></a>
+			<a href="javascript:;" name="plus" value="1" onkeypress="this.onclick;" class="plus"><img src="../images/goods/btn_cnt_up.gif" width="15" height="9" alt="수량증가" /></a>
+			<a href="javascript:;" name="dec" value="1" onkeypress="this.onclick;" class="minus"><img src="../images/goods/btn_cnt_down.gif" width="15" height="9" alt="수량감소" /></a>
+			<a href="javascript:;" name="modi" value="1" onkeypress="this.onlick;" class="modi"><img src="../images/order/btn_cnt_mod.gif" width="46" height="18" alt="변경" /></a>
 		</p>
 	</td>
-	<td class="g_prc"><span>${toCurrency(caculatePriceAtQty(cartItem))}</span></td>
+	<td class="g_prc"><span class="current">${toCurrency(caculatePriceAtQty(cartItem))}</span></td>
 	<td class="g_dvr">${toCurrency(cartItem.deliverAmt)}원</td>
 	<td class="g_ord">
-		<a href="javascript:;" ><img src="../images/order/btn_order_s.gif" width="51" height="20" alt="주문하기" /></a>
+		<a href="javascript:;"class="order"><img src="../images/order/btn_order_s.gif" width="51" height="20" alt="주문하기" /></a>
 		<a href="javascript:;" class="del">삭제하기</a>
 	</td>
 </tr>
-
 `
 
 	return html;
@@ -430,10 +568,10 @@ const html = `
 						<col style="width:80px" />
 						<col style="width:89px" />
 					</colgroup>
-					<thead>
+					<thead>    <!-- onclick="checkAll('sel_all_1')" -->
 						<tr>
 							<th scope="col" class="chk">
-								<input type="checkbox" class="checkbox" name="sel_all" id="sel_all_1" onclick="checkAll('sel_all_1')" />
+								<input type="checkbox" class="checkbox" name="sel_all" id="sel_all_1"/>
 								<label for="cart_all">전체선택</label>
 							</th>
 							<th scope="col">상품명/선택사항</th>
@@ -448,6 +586,17 @@ const html = `
 						<!-- TOTAL -->					
 						<!-- //TOTAL -->
 					</tbody>
+					<tfoot>
+						<!-- TOTAL -->
+						<tr>
+							<td colspan="7" class="c_tot">
+								<span class="sum"><em>주문금액 :</em><strong id="ord_amt"></strong>원</span> +
+								<span class="sum"><em>배송비합계 :</em><strong id="deliver_total_amt"></strong>원</span> =
+								<span class="tot"><em>총 예상 결제금액</em><strong id="total_amt"></strong>원</span>
+							</td>
+						</tr>
+						<!-- //TOTAL -->
+					</tfoot>
 				</table>
 
 				<!-- SELECT BUTTON -->
@@ -455,9 +604,9 @@ const html = `
 					<input type="checkbox" name="sel_all" class="checkbox" id="sel_all_2" />
 					<label for="sel_all">전체선택</label>
 					<div class="btns">
-						<a href="javascript:;" ><img src="../images/order/btn_ord_del.gif" width="86"  height="32" alt="선택상품을 삭제" /></a>
+						<a href="javascript:;" class="del"><img src="../images/order/btn_ord_del.gif" width="86"  height="32" alt="선택상품을 삭제" /></a>
 						<a href="#"><img src="../images/order/btn_ord_wish.gif" width="103" height="32" alt="위시리스트 담기" /></a>
-						<a href="#"><img src="../images/order/btn_ord.gif" width="103" height="32" alt="주문하기" /></a>
+						<a href="javascript:;" class="order"><img src="../images/order/btn_ord.gif" width="103" height="32" alt="주문하기" /></a>
 						<a href="#"><img src="../images/order/btn_ord_all.gif" width="103" height="32" alt="전체 주문하기" /></a>
 					</div>
 				</div>
