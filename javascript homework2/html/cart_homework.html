@@ -198,7 +198,7 @@
 
 		}
 
-		const modi = function(e) {
+		const modi = function(e) { // 수량 변경 및 주문금액 변경
             const $currparent = $(e).parent().parent().next();
 			const $currElement = $currparent.find("span.current");
 
@@ -244,7 +244,7 @@
 
 		}
 
-		const box = function() {
+		const box = function() {  // 체크박스 선택 및 해제 
 			$("#sel_all_1").click(function() {
 				if($("#sel_all_1").is(":checked")) {$("input[name=choice_prd]:not(:disabled)").prop("checked", true); $("input[name=sel_all]").prop("checked", true);}
 				else {$("input[name=choice_prd]").prop("checked", false); $("input[name=sel_all]").prop("checked", false); }
