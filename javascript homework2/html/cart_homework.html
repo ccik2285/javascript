@@ -133,7 +133,7 @@
 
 		};
         
-		const fee = function() {
+		const fee = function() {// 주문금액 갱신 함수 
 			let cart = testData;
 			let ord_amt = 0;
 			let dta = 0;
@@ -287,8 +287,10 @@
 					const $qtyElement = $parent.find("input[name=qty]");
             		const $price = $parent.find("input[name=price]"); 
 					const $dprice = $parent.find("input[name=deliver_amt]");
+					const $itemno = $parent.find("input[name=item_no]");
+
 					TrueAmt += Number($price.val());
-					console.log("qty : " + $qtyElement.val() + " amt : "  + $price.val() + " deliveramt : "+ $dprice.val());
+					console.log("qty : " + $qtyElement.val() + " amt : "  + $price.val() + " deliveramt : "+ $dprice.val() + " item_no : " + $itemno.val());
 				}
 			});
 			console.log("실제주문금액 : " + toCurrency(TrueAmt) + "원");
@@ -400,7 +402,7 @@ const html = `
 			<input type="hidden" name="IsSold" value="${cartItem.soldOut}" class="input" title="품절 여부" />
 			<input type="hidden" name="deliver_amt" value="${cartItem.deliverAmt}" class="input" title="배송비" />
 			<input type="hidden" name="goods_code" value="${cartItem.goodsNo}" class="input" title="상품코드" />
-			<input type="hidden" name="item_no" value="${cartItem.item.itemNo}" class="input" title="단품 코드" />
+			<input type="hidden" name="item_no" value="${cartItem.item[0].itemNo}" class="input" title="단품 코드" />
 			<a href="javascript:;" name="plus" value="1" onkeypress="this.onclick;" class="plus"><img src="../images/goods/btn_cnt_up.gif" width="15" height="9" alt="수량증가" /></a>
 			<a href="javascript:;" name="dec" value="1" onkeypress="this.onclick;" class="minus"><img src="../images/goods/btn_cnt_down.gif" width="15" height="9" alt="수량감소" /></a>
 			<a href="javascript:;" name="modi" value="1" onkeypress="this.onlick;" class="modi"><img src="../images/order/btn_cnt_mod.gif" width="46" height="18" alt="변경" /></a>
